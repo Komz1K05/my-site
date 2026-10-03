@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2A6FB5">
+<meta name="description" content="ЛапаПомощи: календарь ухода за питомцем с напоминаниями.">
+<title>ЛапаПомощи</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF5FC; --surface:#FFFFFF; --surface2:#F6FAFE; --ink:#15273A; --muted:#566B80; --dim:#8598AB; --line:#D7E5F2; --line2:#C3D7EA;
+  --blue:#2A6FB5; --blue2:#225E9C; --blueInk:#FFFFFF; --soft:#DCEBFA; --softInk:#1E5A97;
+  --vac:#DCEBFA; --vacD:#1E5A97; --par:#DDF3E7; --parD:#1F7350; --vet:#FCE4E6; --vetD:#A83A49; --gro:#EAE4FB; --groD:#5A44AE; --reg:#FFF1CF; --regD:#8A650C; --oth:#E9EEF3; --othD:#52667A;
+  --danger:#C43D4B; --dangerSoft:#FCE4E6; --ok:#1F8A5B;
+  --shadow:0 1px 2px rgba(21,39,58,.04),0 8px 24px rgba(42,111,181,.09); --shadowLg:0 24px 60px rgba(21,39,58,.2);
+  --font:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15.5px;line-height:1.5;font-weight:600;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+h1,h2,h3{margin:0;font-weight:900;letter-spacing:-.01em}
+.num{font-variant-numeric:tabular-nums}
+svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.i .f{fill:currentColor;stroke:none}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line2);background:var(--surface);color:var(--ink);padding:10px 16px;border-radius:14px;font-weight:800;font-size:14.5px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,transform .1s}
+.btn{text-decoration:none}
+.btn:hover{background:var(--surface2)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:var(--blueInk)}
+.btn.primary:hover{background:var(--blue2);border-color:var(--blue2)}
+.btn.soft{background:var(--soft);border-color:transparent;color:var(--softInk)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:var(--soft)}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:11px}
+.btn.lg{padding:14px 20px;font-size:16px;border-radius:16px}
+.btn.icon{width:40px;height:40px;padding:0}
+.btn.block{width:100%}
+.btn.danger{color:var(--danger)} .btn.danger:hover{background:var(--dangerSoft);border-color:transparent}
+.btn.gold{background:linear-gradient(135deg,#FFD978,#FFB84D);border-color:transparent;color:#4A3200}
+.field{display:grid;gap:6px}
+.field>span{font-size:13px;font-weight:800;color:var(--muted)}
+.inp{width:100%;background:var(--surface);border:1px solid var(--line2);border-radius:13px;padding:11px 13px;font-size:16px;font-weight:600;transition:border-color .15s,box-shadow .15s}
+.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px var(--soft)}
+.inp.err{border-color:var(--danger)}
+.ferr{font-size:12.5px;color:var(--danger)}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:34px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:420px){.g2.st{grid-template-columns:1fr}}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:800;background:var(--soft);color:var(--softInk);white-space:nowrap}
+.chip.gray{background:var(--oth);color:var(--othD)} .chip.red{background:var(--dangerSoft);color:var(--danger)} .chip.gold{background:#FFF1CF;color:#8A650C}
+.seg{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:13px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:7px 12px;border-radius:10px;font-size:13.5px;font-weight:800;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+
+/* welcome */
+.welcome{min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:radial-gradient(700px 420px at 100% 0,#CFE3F7 0,transparent 60%),radial-gradient(600px 420px at 0 100%,#DDF0FA 0,transparent 60%),var(--bg)}
+.wcard{width:min(460px,100%);background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:var(--shadowLg);display:grid;gap:18px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:21px}
+.brand .lg{width:40px;height:40px;border-radius:13px;background:var(--blue);color:#fff;display:grid;place-items:center}
+.brand .lg svg{width:22px;height:22px}
+.wcard h1{font-size:28px;line-height:1.12;text-wrap:balance}
+.wcard p{margin:0;color:var(--muted)}
+.wl{display:grid;gap:8px}
+.wl div{display:flex;gap:10px;align-items:center;font-weight:700;font-size:14.5px}
+.wl .ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none}
+
+/* shell */
+.shell{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:230px 1fr;gap:26px;padding:24px 16px 40px;min-height:100vh;align-items:start}
+.rail{position:sticky;top:24px;display:grid;gap:6px}
+.rail .brand{padding:4px 8px 14px}
+.rail a{display:flex;gap:11px;align-items:center;padding:11px 13px;border-radius:14px;color:var(--muted);font-weight:800;text-decoration:none}
+.rail a:hover{background:var(--surface)}
+.rail a.on{background:var(--soft);color:var(--softInk)}
+.rail .pro{margin-top:14px;border-radius:20px;padding:16px;background:linear-gradient(145deg,#2A6FB5,#5BA3E0);color:#fff;display:grid;gap:8px}
+.rail .pro b{font-size:17px}
+.rail .pro span{font-size:13px;opacity:.92;font-weight:600}
+.main{min-width:0;max-width:720px;width:100%}
+.bnav{display:none}
+@media (max-width:880px){
+  .shell{display:block;padding:14px 16px calc(98px + env(safe-area-inset-bottom,0px))}
+  .rail{display:none} .main{max-width:none}
+  .bnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+  .bnav a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:800;color:var(--muted);padding:7px 2px;border-radius:14px;text-decoration:none}
+  .bnav a.on{color:var(--softInk);background:var(--soft)}
+  .bnav svg{width:21px;height:21px}
+}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+.head .ey{font-size:13px;font-weight:900;color:var(--softInk);text-transform:uppercase;letter-spacing:.08em}
+.head h1{font-size:clamp(25px,5vw,32px);line-height:1.12;margin-top:2px}
+.head .acts{display:flex;gap:8px;align-items:center}
+.bell{position:relative}
+.bell .cnt{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;border-radius:99px;background:var(--danger);color:#fff;font-size:11px;font-weight:900;display:grid;place-items:center;padding:0 4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px;min-width:0}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:22px 0 10px;gap:10px}
+.sec h2{font-size:18px;display:flex;gap:8px;align-items:center}
+.note{font-size:13px;color:var(--muted);font-weight:600}
+.banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:var(--soft);font-size:14px;margin-bottom:14px}
+.banner svg{color:var(--softInk);margin-top:2px}
+.banner.warn{background:#FFF1CF} .banner.warn svg{color:#8A650C}
+
+/* pets strip */
+.pets{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.petchip{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line2);background:var(--surface);border-radius:18px;padding:8px 14px 8px 8px;cursor:pointer;flex:none;font-weight:800}
+.petchip.on{border-color:var(--blue);background:var(--soft)}
+.petchip small{display:block;font-size:12px;color:var(--muted);font-weight:700}
+.ava{width:44px;height:44px;border-radius:50%;background:var(--soft) center/cover;color:var(--softInk);display:grid;place-items:center;flex:none;overflow:hidden}
+.ava svg{width:24px;height:24px}
+.ava.big{width:84px;height:84px} .ava.big svg{width:44px;height:44px}
+
+/* tasks */
+.grp{display:grid;gap:10px}
+.task{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px;box-shadow:var(--shadow)}
+.task.over{border-color:#F0B8BF;background:#FFF7F8}
+.task .ck{appearance:none;width:28px;height:28px;border-radius:10px;border:2px solid var(--line2);display:grid;place-items:center;cursor:pointer;margin:0;background:var(--surface);transition:all .15s}
+.task .ck:hover{border-color:var(--blue)}
+.task .ck:checked{background:var(--ok);border-color:var(--ok)}
+.task .ck:checked::after{content:"";width:11px;height:6px;border-left:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.task .bd{border:0;background:none;text-align:left;padding:0;cursor:pointer;min-width:0;display:grid;gap:3px}
+.task .bd b{font-size:15.5px;font-weight:800;overflow-wrap:anywhere}
+.task .bd span{font-size:13px;color:var(--muted);display:flex;gap:4px 10px;flex-wrap:wrap;align-items:center}
+.task .when{text-align:right;font-size:13px;font-weight:800;white-space:nowrap}
+.task .when small{display:block;font-weight:700;color:var(--muted);font-size:12px}
+.cat{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:800}
+.catic{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;flex:none}
+.empty{background:var(--surface);border:1px dashed var(--line2);border-radius:20px;padding:26px 16px;text-align:center;color:var(--muted);display:grid;gap:10px;justify-items:center}
+.empty b{color:var(--ink);font-size:17px}
+.empty .ava{width:60px;height:60px} .empty .ava svg{width:30px;height:30px}
+.fab{position:fixed;right:max(20px,calc(50vw - 510px));bottom:28px;z-index:25;box-shadow:0 12px 30px rgba(42,111,181,.35)}
+@media (max-width:880px){.fab{right:16px;bottom:calc(88px + env(safe-area-inset-bottom,0px))}}
+
+/* calendar */
+.wknav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.wknav b{font-size:18px;font-weight:900;text-align:center;flex:1}
+.calg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.calg small{font-size:11px;font-weight:900;color:var(--dim);padding:4px 0}
+.cd{aspect-ratio:1;max-height:54px;border:0;background:none;border-radius:14px;display:grid;place-items:center;align-content:center;gap:2px;cursor:pointer;font-weight:800;font-variant-numeric:tabular-nums;width:100%}
+.cd:hover{background:var(--soft)}
+.cd.on{background:var(--blue);color:#fff}
+.cd.today:not(.on){outline:2px solid var(--blue);outline-offset:-2px}
+.cd .dots{display:flex;gap:2px;height:6px}
+.cd .dots i{width:6px;height:6px;border-radius:50%}
+
+/* pets page */
+.petcard{display:grid;gap:14px}
+.petcard .top{display:flex;gap:14px;align-items:center}
+.petcard h3{font-size:22px}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.spec{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.spec span{display:block;font-size:12px;color:var(--muted);font-weight:800}
+.spec b{font-weight:800}
+.lockrow{display:flex;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#FFF6DD,#FFEFC2);border-radius:14px;padding:10px 12px;font-size:13.5px;font-weight:700;color:#5C4300;flex-wrap:wrap}
+
+/* history & stats */
+.hist{display:grid}
+.hrow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.hrow:last-child{border-bottom:0}
+.hrow b{display:block;font-weight:800}
+.hrow span{font-size:13px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.kpi{border-radius:18px;padding:14px;background:var(--soft);color:var(--softInk)}
+.kpi b{display:block;font-size:26px;font-weight:900;color:var(--ink);font-variant-numeric:tabular-nums}
+.kpi span{font-size:12.5px;font-weight:800;overflow-wrap:anywhere}
+.kpi{min-width:0}
+.hbars{display:grid;gap:10px}
+.hb{display:grid;grid-template-columns:minmax(90px,150px) 1fr auto;gap:12px;align-items:center;font-size:14px}
+.hb .t{height:10px;border-radius:99px;background:var(--oth);overflow:hidden}
+.hb .t i{display:block;height:100%;border-radius:99px;background:#5B9BD9}
+.hb .v{font-weight:900;font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
+.locked{position:relative;overflow:hidden}
+.locked .bl{filter:blur(5px);opacity:.5;pointer-events:none}
+.locked .lk{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px}
+.locked .lk>div{display:grid;gap:8px;justify-items:center;max-width:300px}
+
+/* premium */
+.offer{border-radius:26px;padding:24px;background:linear-gradient(150deg,#2A6FB5,#63A9E6);color:#fff;display:grid;gap:14px;margin-bottom:14px;box-shadow:var(--shadowLg)}
+.offer h2{font-size:24px;line-height:1.15}
+.offer p{margin:0;font-weight:600;opacity:.95}
+.offer .pr{font-size:40px;font-weight:900;line-height:1}
+.offer .pr small{font-size:16px;font-weight:700;opacity:.9}
+.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+.cmp th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);font-weight:900;padding:8px;text-align:center}
+.cmp th:first-child,.cmp td:first-child{text-align:left}
+.cmp td{padding:11px 8px;border-top:1px solid var(--line);text-align:center;font-weight:700}
+.cmp svg{color:var(--ok)} .cmp .no{color:var(--dim)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.row:last-child{border-bottom:0;padding-bottom:0} .row:first-child{padding-top:0}
+.row b{display:block;font-weight:800} .row .d{font-size:13px;color:var(--muted)}
+
+/* modal & toast */
+.ov{position:fixed;inset:0;z-index:70;background:rgba(15,30,48,.42);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px;animation:fi .15s}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{width:min(500px,100%);max-height:calc(100vh - 32px);overflow-y:auto;background:var(--surface);border-radius:26px;padding:22px;display:grid;gap:14px;box-shadow:var(--shadowLg);animation:pu .2s ease}
+@keyframes pu{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.modal h3{font-size:21px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.modal .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.catbtn{display:flex;gap:8px;align-items:center;border:1.5px solid var(--line2);background:var(--surface);border-radius:13px;padding:8px 10px;font-weight:800;font-size:13.5px;cursor:pointer;text-align:left}
+.catbtn.on{border-color:var(--blue);background:var(--soft)}
+.catbtn.lockd{opacity:.65}
+.catbtn .catic{width:28px;height:28px;border-radius:9px}
+.catbtn .catic svg{width:15px;height:15px}
+.photo{display:flex;gap:14px;align-items:center}
+@media (max-width:560px){.ov{place-items:end center;padding:0}.modal{border-radius:26px 26px 0 0;max-height:92vh;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}}
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));z-index:90;display:grid;gap:8px;width:max-content;max-width:calc(100vw - 32px)}
+.toast{background:var(--ink);color:#fff;border-radius:14px;padding:11px 15px;font-size:14px;font-weight:800;display:flex;gap:10px;align-items:center;box-shadow:var(--shadowLg);animation:pu .2s}
+.toast svg{color:#8FE0B8}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div id="layers"></div>
+
+<script>
+(function(){
+"use strict";
+/* ================================================================
+   ЛапаПомощи — MVP в одном файле.
+   format · store · auth · domain (питомцы, процедуры, напоминания,
+   тарифы) · ui (модалки, списки, календарь) · экраны
+   ================================================================ */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+const pad=n=>String(n).padStart(2,"0");
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const D=s=>new Date(s+"T00:00:00");
+const today=()=>iso(new Date());
+const addDays=(s,n)=>{ const d=D(s); d.setDate(d.getDate()+n); return iso(d); };
+const addMonths=(s,n)=>{ const d=D(s); const day=d.getDate(); d.setDate(1); d.setMonth(d.getMonth()+n); d.setDate(Math.min(day,new Date(d.getFullYear(),d.getMonth()+1,0).getDate())); return iso(d); };
+const diff=(a,b)=>Math.round((D(a)-D(b))/864e5);
+const MG=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const MN=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+const WDS=["ПН","ВТ","СР","ЧТ","ПТ","СБ","ВС"];
+const WD=["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
+const dl=s=>{ const d=D(s); return `${d.getDate()} ${MG[d.getMonth()]}${d.getFullYear()!==new Date().getFullYear()?" "+d.getFullYear():""}`; };
+const plural=(n,a,b,c)=>{ const m10=n%10,m100=n%100; return m10===1&&m100!==11?a:(m10>=2&&m10<=4&&(m100<10||m100>=20)?b:c); };
+const rel=s=>{ const n=diff(s,today()); return n===0?"сегодня":n===1?"завтра":n===-1?"вчера":n<0?`${-n} ${plural(-n,"день","дня","дней")} назад`:`через ${n} ${plural(n,"день","дня","дней")}`; };
+function age(b){ if(!b) return ""; const a=D(b), n=new Date(); let m=(n.getFullYear()-a.getFullYear())*12+n.getMonth()-a.getMonth()-(n.getDate()<a.getDate()?1:0); if(m<0) m=0; const y=Math.floor(m/12); m%=12;
+  return y?`${y} ${plural(y,"год","года","лет")}${m?` ${m} мес.`:""}`:`${m} мес.`; }
+
+const IC={
+  paw:'<g class="f"><ellipse cx="6" cy="10" rx="2.200" ry="2.800"/><ellipse cx="10.200" cy="6" rx="2.200" ry="2.900"/><ellipse cx="14.800" cy="6" rx="2.200" ry="2.900"/><ellipse cx="19" cy="10" rx="2.200" ry="2.800"/><path d="M12.500 11.500c-3 0-5.500 2.800-5.500 5.300 0 1.700 1.300 2.700 2.900 2.700 1.100 0 1.700-.5 2.600-.5s1.500.5 2.600.5c1.600 0 2.900-1 2.900-2.700 0-2.500-2.500-5.300-5.500-5.300z"/></g>',
+  home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>', cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  hist:'<path d="M3 12a9 9 0 1 0 3-6.700L3 8M3 3v5h5M12 7v5l3 2"/>', user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>', check:'<path d="M5 12l5 5L20 7"/>', bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.300 21a2 2 0 0 0 3.400 0"/>',
+  syringe:'<path d="M18 2l4 4M17 7l3-3M19 9l-8.500 8.500a2.100 2.100 0 0 1-3 0l-2-2a2.100 2.100 0 0 1 0-3L14 4M9 8l2 2M5 19l-3 3M14 4l6 6"/>',
+  shield:'<path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>', steth:'<path d="M5 3v6a5 5 0 0 0 10 0V3M3 3h4M13 3h4M10 14v2a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="12" r="2"/>',
+  scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.100 15.900M14.500 14.500L20 20M8.100 8.100L12 12"/>', repeat:'<path d="M17 2l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/>',
+  star:'<path d="M12 3l2.700 5.600 6.100.900-4.400 4.300 1 6.100L12 17l-5.400 2.900 1-6.100L3.200 9.500l6.100-.900z"/>', bowl:'<path d="M3 11h18a9 9 0 0 1-18 0zM7 21h10M9 7c0-1.500 1-2 1-3.500M14 7c0-1.500 1-2 1-3.500"/>',
+  tooth:'<path d="M7 3c-2.500 0-4 2-4 4.500 0 3 1.500 4 2 8 .300 2.500 1 5.500 2.500 5.500s1.500-4 2.500-6c.500-1 1.500-1 2 0 1 2 1 6 2.500 6s2.200-3 2.500-5.500c.500-4 2-5 2-8C19 5 17.500 3 15 3c-1.500 0-2 1-3 1s-1.500-1-3-1z"/>',
+  flask:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.800 3h10.400a2 2 0 0 0 1.800-3l-5-9V3M7.500 15h9"/>', run:'<circle cx="14" cy="4" r="2"/><path d="M5 22l4-7 4 2v5M9 9l-3 3M9 9l5-2 3 4 3 1M9 9l2 6"/>',
+  cut:'<path d="M5 19l14-14M15 5h4v4M5 12c2-1 4-1 6 1"/>', left:'<path d="M15 5l-7 7 7 7"/>', right:'<path d="M9 5l7 7-7 7"/>', edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  crown:'<path d="M3 7l4 4 5-7 5 7 4-4-2 12H5z"/>', info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>', alert:'<path d="M12 9v4M12 17h.01M10.300 3.900L1.800 18a2 2 0 0 0 1.700 3h17a2 2 0 0 0 1.700-3L13.700 3.900a2 2 0 0 0-3.400 0z"/>',
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>', camera:'<path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/>',
+  cat:'<path d="M4 4l3 4a8 8 0 0 1 10 0l3-4v9a8 8 0 0 1-16 0z"/><path d="M9 13h.01M15 13h.01M11 16.500c.600.600 1.400.600 2 0"/>', dog:'<path d="M5 4L3 10l3 2v4a6 6 0 0 0 12 0v-4l3-2-2-6-4 2H9z"/><path d="M9.500 12h.01M14.500 12h.01M11 16h2"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+};
+const ic=(n,c="")=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]||""}</svg>`;
+
+/* ---------- store & auth ---------- */
+const mem={};
+const store={ get(k,d){ try{ const v=localStorage.getItem(k); if(v!=null) return JSON.parse(v); }catch(e){} return k in mem?mem[k]:d; },
+  set(k,v){ mem[k]=v; try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }, del(k){ delete mem[k]; try{ localStorage.removeItem(k); }catch(e){} } };
+async function hash(pw,salt){ try{ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(salt+":"+pw)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }catch(e){ let h=5381; for(const c of salt+":"+pw) h=((h<<5)+h+c.charCodeAt(0))|0; return "f"+(h>>>0).toString(16); } }
+const Auth={ users:()=>store.get("lp:users",[]), me(){ const id=store.get("lp:session",null); return id?this.users().find(u=>u.id===id)||null:null; },
+  async register({name,email,password}){ const o={}; name=name.trim(); email=email.trim().toLowerCase(); if(name.length<2) o.name="Минимум 2 символа"; if(!/^\S+@\S+\.\S+$/.test(email)) o.email="Проверьте email"; if(password.length<6) o.password="Минимум 6 символов";
+    if(!o.email&&this.users().some(u=>u.email===email)) o.email="Такой email уже зарегистрирован"; if(Object.keys(o).length) return {errors:o}; const salt=uid(); const u={id:uid(),name,email,salt,hash:await hash(password,salt)}; store.set("lp:users",[...this.users(),u]); store.set("lp:session",u.id); return {user:u}; },
+  async login({email,password}){ email=email.trim().toLowerCase(); const u=this.users().find(x=>x.email===email); if(!u||u.demo||u.hash!==await hash(password,u.salt)) return {errors:{password:"Неверный email или пароль"}}; store.set("lp:session",u.id); return {user:u}; },
+  demo(){ let u=this.users().find(x=>x.demo); const fresh=!u; if(!u){ u={id:uid(),name:"Гость",email:"",demo:true}; store.set("lp:users",[...this.users(),u]); } store.set("lp:session",u.id); return {user:u,fresh}; },
+  logout(){ store.del("lp:session"); } };
+let ME=null, S=null;
+const blank=()=>({pets:[],procs:[],plan:"free",activePet:"all"});
+const load=()=>{ S=Object.assign(blank(),store.get("lp:data:"+ME.id,{})); };
+const save=()=>store.set("lp:data:"+ME.id,S);
+
+/* ---------- domain ---------- */
+const CATS={
+  vac:{n:"Вакцинация",i:"syringe",bg:"var(--vac)",fg:"var(--vacD)"}, par:{n:"Обработка от паразитов",i:"shield",bg:"var(--par)",fg:"var(--parD)"},
+  vet:{n:"Ветеринар",i:"steth",bg:"var(--vet)",fg:"var(--vetD)"}, gro:{n:"Груминг",i:"scissors",bg:"var(--gro)",fg:"var(--groD)"},
+  reg:{n:"Регулярная процедура",i:"repeat",bg:"var(--reg)",fg:"var(--regD)"}, oth:{n:"Другое",i:"star",bg:"var(--oth)",fg:"var(--othD)"},
+  food:{n:"Покупка корма",i:"bowl",bg:"var(--reg)",fg:"var(--regD)",pro:true}, teeth:{n:"Чистка зубов",i:"tooth",bg:"var(--vac)",fg:"var(--vacD)",pro:true},
+  claws:{n:"Стрижка когтей",i:"cut",bg:"var(--gro)",fg:"var(--groD)",pro:true}, lab:{n:"Анализы",i:"flask",bg:"var(--vet)",fg:"var(--vetD)",pro:true}, train:{n:"Тренировка",i:"run",bg:"var(--par)",fg:"var(--parD)",pro:true}
+};
+const REPEAT={none:"Не повторять",day:"Каждый день",week:"Каждую неделю",month:"Каждый месяц",m3:"Раз в 3 месяца",year:"Раз в год"};
+const REMIND={0:"В день процедуры",1:"За 1 день",3:"За 3 дня",7:"За неделю"};
+const SPECIES={cat:"Кошка",dog:"Собака",other:"Другое"};
+const FREE={pets:1,active:7,histMonths:3};
+const isPro=()=>S.plan==="pro";
+const pet=id=>S.pets.find(p=>p.id===id);
+const visible=p=>S.activePet==="all"||p.petId===S.activePet;
+const active=()=>S.procs.filter(p=>!p.done&&visible(p)).sort((a,b)=>(a.date+(a.time||"99")).localeCompare(b.date+(b.time||"99")));
+const reminders=()=>S.procs.filter(p=>!p.done&&diff(p.date,today())<=(+p.remind||0)).sort((a,b)=>a.date.localeCompare(b.date));
+function nextDate(p){ return {day:addDays(p.date,1),week:addDays(p.date,7),month:addMonths(p.date,1),m3:addMonths(p.date,3),year:addMonths(p.date,12)}[p.repeat]||null; }
+function complete(p){ p.done=true; p.doneAt=today(); let nx=null; if(p.repeat&&p.repeat!=="none"){ let d=nextDate(p); while(d&&d<=today()&&p.repeat==="day") d=addDays(d,1); nx={...p,id:uid(),date:d,done:false,doneAt:null}; S.procs.push(nx); } save(); return nx; }
+function seedDemo(){ const t=today(); const b={id:uid(),name:"Барсик",species:"cat",breed:"Британская короткошёрстная",birth:addMonths(t,-38),weight:5.4,notes:"Не любит переноску. Аллергия на курицу.",photo:"",chip:"",clinic:"",food:""};
+  S.pets=[b]; const P=(cat,title,off,o={})=>({id:uid(),petId:b.id,cat,title,date:addDays(t,off),time:"",repeat:"none",remind:1,note:"",done:false,doneAt:null,...o});
+  S.procs=[P("vac","Комплексная вакцинация",12,{repeat:"year",remind:7,note:"Взять ветпаспорт"}),P("gro","Груминг",2,{time:"16:00",remind:1}),P("vet","Плановый осмотр у ветеринара",48,{remind:3}),P("reg","Дать витамины",0,{repeat:"day",remind:0,time:"09:00"}),
+    P("par","Обработка от блох и клещей",-2,{repeat:"m3",remind:3}),
+    P("par","Обработка от глистов",-8,{done:true,doneAt:addDays(t,-8)}),P("vet","Осмотр и взвешивание",-64,{done:true,doneAt:addDays(t,-64)}),P("vac","Вакцинация от бешенства",-120,{done:true,doneAt:addDays(t,-119)}),P("gro","Груминг",-150,{done:true,doneAt:addDays(t,-150)})];
+  S.activePet="all"; save(); }
+
+/* ---------- ui helpers ---------- */
+function toast(m){ const el=document.createElement("div"); el.className="toast"; el.innerHTML=ic("check")+esc(m); $("#toasts").appendChild(el); setTimeout(()=>{ el.style.opacity=0; el.style.transition="opacity .3s"; setTimeout(()=>el.remove(),300); },2800); }
+function modal(html,{onClose}={}){ const ov=document.createElement("div"); ov.className="ov"; ov.innerHTML=`<div class="modal" role="dialog" aria-modal="true">${html}</div>`; $("#layers").appendChild(ov);
+  const close=()=>{ ov.remove(); document.removeEventListener("keydown",k); onClose&&onClose(); }; const k=e=>{ if(e.key==="Escape") close(); }; document.addEventListener("keydown",k);
+  ov.addEventListener("mousedown",e=>{ if(e.target===ov) close(); }); $$("[data-close]",ov).forEach(b=>b.onclick=close); return {el:ov,close}; }
+function confirmBox(t,x,ok="Удалить"){ return new Promise(res=>{ let done=false; const m=modal(`<h3>${esc(t)}</h3><div class="note" style="font-size:15px">${esc(x)}</div><div class="acts"><button class="btn" data-close>Отмена</button><button class="btn primary" id="cok">${esc(ok)}</button></div>`,{onClose:()=>{ if(!done) res(false); }}); $("#cok",m.el).onclick=()=>{ done=true; res(true); m.close(); }; }); }
+function errs(form,o){ $$(".ferr",form).forEach(e=>e.textContent=""); $$(".inp",form).forEach(i=>i.classList.remove("err")); let first; Object.entries(o).forEach(([k,v])=>{ const i=form.querySelector(`[name="${k}"]`), e=form.querySelector(`[data-err="${k}"]`); if(e) e.textContent=v; if(i){ i.classList.add("err"); first=first||i; } }); first&&first.focus(); return !Object.keys(o).length; }
+const fdata=f=>Object.fromEntries(new FormData(f).entries());
+const avatar=(p,cls="")=>`<span class="ava ${cls}" ${p&&p.photo?`style="background-image:url('${p.photo}')"`:""}>${p&&p.photo?"":ic(p&&p.species==="dog"?"dog":p&&p.species==="cat"?"cat":"paw")}</span>`;
+const catChip=c=>`<span class="cat" style="background:${CATS[c].bg};color:${CATS[c].fg}">${CATS[c].n}</span>`;
+function paywall(reason){ const m=modal(`<h3><span style="display:flex;gap:8px;align-items:center">${ic("crown")}Premium</span><button class="btn icon ghost" data-close aria-label="Закрыть">${ic("x")}</button></h3>
+  <div class="note" style="font-size:15px">${esc(reason)}</div>
+  <div class="offer" style="margin:0;box-shadow:none"><div class="pr">199 ₽<small> в месяц</small></div><p>Несколько питомцев, неограниченные напоминания, дополнительные категории, статистика и расширенная карточка.</p></div>
+  <div class="banner" style="margin:0">${ic("info")}<div>Оплата в прототипе не подключена. Кнопка включает тестовый Premium, деньги не списываются.</div></div>
+  <div class="acts"><button class="btn" data-close>Не сейчас</button><button class="btn gold" id="goPro">${ic("crown")}Оформить за 199 ₽</button></div>`);
+  $("#goPro",m.el).onclick=()=>{ S.plan="pro"; S.proSince=today(); save(); m.close(); toast("Premium включён (тестовый режим)"); render(); }; }
+
+/* ---------- forms ---------- */
+function petForm(p){ if(!p&&!isPro()&&S.pets.length>=FREE.pets){ paywall("В бесплатной версии можно вести одного питомца. В Premium — сколько угодно."); return; }
+  const v=p||{name:"",species:"cat",breed:"",birth:"",weight:"",notes:"",photo:"",chip:"",clinic:"",food:""}; let photo=v.photo;
+  const m=modal(`<h3>${p?"Карточка питомца":"Новый питомец"}<button class="btn icon ghost" data-close aria-label="Закрыть">${ic("x")}</button></h3>
+  <form id="pf" novalidate style="display:grid;gap:12px">
+    <div class="photo"><span id="ph">${avatar({...v,photo},"big")}</span><div style="display:grid;gap:6px"><label class="btn sm soft">${ic("camera")}Выбрать фото<input type="file" accept="image/*" id="phIn" hidden></label>${photo?`<button type="button" class="btn sm ghost" id="phRm">Убрать фото</button>`:`<span class="note">Квадратное фото смотрится лучше</span>`}</div></div>
+    <div class="g2 st"><label class="field"><span>Имя</span><input class="inp" name="name" value="${esc(v.name)}" placeholder="Барсик" maxlength="30"><div class="ferr" data-err="name"></div></label>
+      <label class="field"><span>Вид животного</span><select class="inp" name="species">${Object.entries(SPECIES).map(([k,n])=>`<option value="${k}" ${v.species===k?"selected":""}>${n}</option>`).join("")}</select></label></div>
+    <label class="field"><span>Порода</span><input class="inp" name="breed" value="${esc(v.breed)}" placeholder="Британская короткошёрстная" maxlength="50"></label>
+    <div class="g2"><label class="field"><span>Дата рождения</span><input class="inp" type="date" name="birth" value="${v.birth}" max="${today()}"><div class="ferr" data-err="birth"></div></label>
+      <label class="field"><span>Вес, кг</span><input class="inp" type="number" step="0.1" min="0" name="weight" value="${v.weight}" inputmode="decimal" placeholder="5.4"><div class="ferr" data-err="weight"></div></label></div>
+    <label class="field"><span>Дополнительная информация</span><textarea class="inp" name="notes" rows="2" maxlength="200" placeholder="Особенности, аллергии, характер">${esc(v.notes)}</textarea></label>
+    ${isPro()?`<div class="g2 st"><label class="field"><span>Номер чипа</span><input class="inp" name="chip" value="${esc(v.chip||"")}" maxlength="20"></label><label class="field"><span>Ветклиника</span><input class="inp" name="clinic" value="${esc(v.clinic||"")}" maxlength="50"></label></div><label class="field"><span>Корм и порция</span><input class="inp" name="food" value="${esc(v.food||"")}" maxlength="80" placeholder="Сухой корм, 60 г в день"></label>`
+      :`<div class="lockrow"><span>${ic("lock")} Чип, клиника и корм — в расширенной карточке Premium</span><button type="button" class="btn sm gold" id="pfPro">Открыть</button></div>`}
+    <div class="acts">${p?`<button type="button" class="btn danger" id="pdel" style="margin-right:auto">${ic("trash")}Удалить</button>`:""}<button type="button" class="btn" data-close>Отмена</button><button class="btn primary">Сохранить</button></div></form>`);
+  $("#phIn",m.el).onchange=e=>{ const f=e.target.files[0]; if(!f) return; if(!f.type.startsWith("image/")){ toast("Нужен файл изображения"); return; } const img=new Image(); img.onload=()=>{ const c=document.createElement("canvas"); c.width=c.height=240; const s=Math.min(img.width,img.height); c.getContext("2d").drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,240,240); photo=c.toDataURL("image/jpeg",.82); $("#ph",m.el).innerHTML=avatar({...v,photo},"big"); URL.revokeObjectURL(img.src); }; img.onerror=()=>toast("Не удалось прочитать это фото"); img.src=URL.createObjectURL(f); };
+  const rm=$("#phRm",m.el); if(rm) rm.onclick=()=>{ photo=""; $("#ph",m.el).innerHTML=avatar({...v,photo:""},"big"); rm.remove(); };
+  const pp=$("#pfPro",m.el); if(pp) pp.onclick=()=>{ m.close(); paywall("Расширенная карточка питомца: номер чипа, ветклиника, корм и порция."); };
+  $("#pf",m.el).onsubmit=e=>{ e.preventDefault(); const x=fdata(e.target), o={}; if(x.name.trim().length<2) o.name="Введите имя"; if(x.birth&&x.birth>today()) o.birth="Не в будущем"; if(x.weight!==""&&!(+x.weight>0&&+x.weight<200)) o.weight="От 0 до 200 кг"; if(!errs(e.target,o)) return;
+    const rec={name:x.name.trim(),species:x.species,breed:x.breed.trim(),birth:x.birth,weight:x.weight===""?"":+x.weight,notes:x.notes.trim(),photo,chip:(x.chip??v.chip??"").trim(),clinic:(x.clinic??v.clinic??"").trim(),food:(x.food??v.food??"").trim()};
+    if(p) Object.assign(p,rec); else { const n={id:uid(),...rec}; S.pets.push(n); S.activePet=n.id; } save(); m.close(); toast(p?"Карточка сохранена":`${rec.name} добавлен`); render(); };
+  const del=$("#pdel",m.el); if(del) del.onclick=async()=>{ m.close(); const n=S.procs.filter(q=>q.petId===p.id).length; if(await confirmBox(`Удалить ${p.name}?`,`Вместе с карточкой удалятся ${n} ${plural(n,"процедура","процедуры","процедур")} и вся история.`)){ S.pets=S.pets.filter(q=>q.id!==p.id); S.procs=S.procs.filter(q=>q.petId!==p.id); S.activePet="all"; save(); toast("Питомец удалён"); render(); } }; }
+function procForm(p,preset={}){ if(!S.pets.length){ toast("Сначала добавьте питомца"); petForm(); return; }
+  if(!p&&!isPro()&&S.procs.filter(q=>!q.done).length>=FREE.active){ paywall(`В бесплатной версии можно держать до ${FREE.active} активных напоминаний. В Premium — без ограничений.`); return; }
+  const v=p||{petId:S.activePet!=="all"?S.activePet:S.pets[0].id,cat:"vac",title:"",date:preset.date||today(),time:"",repeat:"none",remind:1,note:""}; let cat=v.cat;
+  const m=modal(`<h3>${p?"Процедура":"Новая процедура"}<button class="btn icon ghost" data-close aria-label="Закрыть">${ic("x")}</button></h3>
+  <form id="rf" novalidate style="display:grid;gap:12px">
+    <div class="field"><span>Категория</span><div class="cats" id="cats">${Object.entries(CATS).map(([k,c])=>`<button type="button" class="catbtn ${k===cat?"on":""} ${c.pro&&!isPro()?"lockd":""}" data-cat="${k}"><span class="catic" style="background:${c.bg};color:${c.fg}">${ic(c.pro&&!isPro()?"lock":c.i)}</span>${c.n}</button>`).join("")}</div></div>
+    <label class="field"><span>Название</span><input class="inp" name="title" value="${esc(v.title)}" placeholder="${CATS[cat].n}" maxlength="60"><div class="ferr" data-err="title"></div></label>
+    ${S.pets.length>1?`<label class="field"><span>Питомец</span><select class="inp" name="petId">${S.pets.map(q=>`<option value="${q.id}" ${q.id===v.petId?"selected":""}>${esc(q.name)}</option>`).join("")}</select></label>`:`<input type="hidden" name="petId" value="${v.petId}">`}
+    <div class="g2"><label class="field"><span>Дата</span><input class="inp" type="date" name="date" value="${v.date}"><div class="ferr" data-err="date"></div></label><label class="field"><span>Время, необязательно</span><input class="inp" type="time" name="time" value="${v.time||""}"></label></div>
+    <div class="g2 st"><label class="field"><span>Повтор</span><select class="inp" name="repeat">${Object.entries(REPEAT).map(([k,n])=>`<option value="${k}" ${v.repeat===k?"selected":""}>${n}</option>`).join("")}</select></label>
+      <label class="field"><span>Напомнить</span><select class="inp" name="remind">${Object.entries(REMIND).map(([k,n])=>`<option value="${k}" ${String(v.remind)===k?"selected":""}>${n}</option>`).join("")}</select></label></div>
+    <label class="field"><span>Заметка</span><input class="inp" name="note" value="${esc(v.note||"")}" maxlength="120" placeholder="Например: взять ветпаспорт"></label>
+    <div class="acts">${p?`<button type="button" class="btn danger" id="rdel" style="margin-right:auto">${ic("trash")}Удалить</button>`:""}<button type="button" class="btn" data-close>Отмена</button><button class="btn primary">Сохранить</button></div></form>`);
+  $$("[data-cat]",m.el).forEach(b=>b.onclick=()=>{ const k=b.dataset.cat; if(CATS[k].pro&&!isPro()){ m.close(); paywall("Дополнительные категории ухода: корм, зубы, когти, анализы и тренировки."); return; } cat=k; $$("[data-cat]",m.el).forEach(x=>x.classList.toggle("on",x===b)); $("[name=title]",m.el).placeholder=CATS[k].n; });
+  $("#rf",m.el).onsubmit=e=>{ e.preventDefault(); const x=fdata(e.target), o={}; if(!x.date) o.date="Выберите дату"; if(!errs(e.target,o)) return;
+    const rec={petId:x.petId,cat,title:x.title.trim()||CATS[cat].n,date:x.date,time:x.time,repeat:x.repeat,remind:+x.remind,note:x.note.trim()};
+    if(p) Object.assign(p,rec); else S.procs.push({id:uid(),done:false,doneAt:null,...rec}); save(); m.close(); toast(p?"Процедура сохранена":`Добавлено на ${dl(rec.date)}`); render(); };
+  const del=$("#rdel",m.el); if(del) del.onclick=async()=>{ m.close(); if(await confirmBox("Удалить процедуру?",`«${p.title}» исчезнет из календаря.`)){ S.procs=S.procs.filter(q=>q.id!==p.id); save(); toast("Процедура удалена"); render(); } }; }
+
+/* ---------- lists ---------- */
+function taskHTML(p){ const n=diff(p.date,today()); const pt=pet(p.petId); const c=CATS[p.cat];
+  return `<div class="task ${n<0?"over":""}"><input type="checkbox" class="ck" data-done="${p.id}" aria-label="Отметить выполненной: ${esc(p.title)}"><button class="bd" data-proc="${p.id}"><b>${esc(p.title)}</b><span>${catChip(p.cat)}${S.pets.length>1&&pt?`<span>${esc(pt.name)}</span>`:""}${p.repeat!=="none"?`<span>${ic("repeat")}</span>`:""}${p.note?`<span>${esc(p.note)}</span>`:""}</span></button>
+    <div class="when" style="${n<0?"color:var(--danger)":""}">${n<0?"Просрочено":n===0?"Сегодня":n===1?"Завтра":dl(p.date)}<small>${n<0?rel(p.date):p.time?p.time:n>1?rel(p.date):""}</small></div></div>`; }
+function bindLists(root){
+  $$("[data-done]",root).forEach(c=>c.onchange=()=>{ const p=S.procs.find(q=>q.id===c.dataset.done); const nx=complete(p); toast(nx?`Выполнено. Следующий раз: ${dl(nx.date)}`:"Выполнено и добавлено в историю"); setTimeout(render,250); });
+  $$("[data-proc]",root).forEach(b=>b.onclick=()=>procForm(S.procs.find(q=>q.id===b.dataset.proc)));
+  $$("[data-pet]",root).forEach(b=>b.onclick=()=>{ S.activePet=b.dataset.pet; save(); render(); });
+  $$("[data-undo]",root).forEach(b=>b.onclick=()=>{ const p=S.procs.find(q=>q.id===b.dataset.undo); p.done=false; p.doneAt=null; save(); toast("Возвращено в активные"); render(); });
+  $$("[data-pro]",root).forEach(b=>b.onclick=()=>paywall(b.dataset.pro)); }
+const petStrip=()=>S.pets.length>1?`<div class="pets"><button class="petchip ${S.activePet==="all"?"on":""}" data-pet="all"><span class="ava">${ic("paw")}</span>Все</button>${S.pets.map(p=>`<button class="petchip ${S.activePet===p.id?"on":""}" data-pet="${p.id}">${avatar(p)}<span>${esc(p.name)}<small>${age(p.birth)||SPECIES[p.species]}</small></span></button>`).join("")}</div>`:"";
+
+/* ---------- screens ---------- */
+const UI={auth:"start",month:today().slice(0,7),cday:today(),hcat:"all"};
+let route="home";
+const NAV=[["home","Главная","home"],["calendar","Календарь","cal"],["pets","Питомцы","paw"],["history","История","hist"],["profile","Профиль","user"]];
+function shell(content,fab=true){ const rm=reminders().length;
+  return `<div class="shell"><aside class="rail"><div class="brand"><span class="lg">${ic("paw")}</span>ЛапаПомощи</div>${NAV.map(([k,n,i])=>`<a href="#${k}" class="${route===k?"on":""}">${ic(i)}${n}</a>`).join("")}
+    ${isPro()?`<div class="pro"><b>${ic("crown")} Premium</b><span>Все функции открыты</span></div>`:`<div class="pro"><b>Premium · 199 ₽</b><span>Несколько питомцев, статистика и напоминания без ограничений</span><a class="btn gold sm" href="#premium" style="color:#4A3200">Подробнее</a></div>`}</aside>
+  <main class="main">${content}</main>
+  <nav class="bnav">${NAV.map(([k,n,i])=>`<a href="#${k}" class="${route===k?"on":""}">${ic(i)}${n}</a>`).join("")}</nav>
+  ${fab?`<button class="btn primary lg fab" id="fab">${ic("plus")}Процедура</button>`:""}</div>`; }
+const head=(ey,title,acts="")=>{ const rm=reminders().length; return `<div class="head"><div><div class="ey">${ey}</div><h1>${title}</h1></div><div class="acts">${acts}<button class="btn icon bell" id="bell" aria-label="Напоминания">${ic("bell")}${rm?`<span class="cnt">${rm}</span>`:""}</button></div></div>`; };
+const Screens={
+  home(){ if(!S.pets.length) return head("Главная","Добро пожаловать")+`<div class="empty"><span class="ava">${ic("paw")}</span><b>Добавьте своего питомца</b><span>Укажите имя, породу и дату рождения. После этого можно составить календарь ухода.</span><button class="btn primary" id="addPet">${ic("plus")}Добавить питомца</button></div>`;
+    const A=active(); const t=today(); const d=new Date(); const wEnd=addDays(t,7-((d.getDay()+6)%7)-1);
+    const over=A.filter(p=>p.date<t), td=A.filter(p=>p.date===t), wk=A.filter(p=>p.date>t&&p.date<=wEnd), later=A.filter(p=>p.date>wEnd);
+    const grp=(title,list,icon,chip)=>list.length?`<div class="sec"><h2>${title}</h2><span class="chip ${chip||"gray"}">${list.length}</span></div><div class="grp">${list.map(taskHTML).join("")}</div>`:"";
+    const only=S.pets.length===1?S.pets[0]:pet(S.activePet);
+    return head(`${cap(WD[d.getDay()])}, ${d.getDate()} ${MG[d.getMonth()]}`,only?`${esc(only.name)}: ближайшие дела`:"Ближайшие дела")+petStrip()+
+      (only?`<div class="card" style="display:flex;gap:14px;align-items:center">${avatar(only,"big")}<div style="min-width:0;flex:1"><b style="font-size:20px;font-weight:900">${esc(only.name)}</b><div class="note" style="font-size:14px">${[only.breed||SPECIES[only.species],age(only.birth),only.weight?only.weight+" кг":""].filter(Boolean).map(esc).join(" · ")}</div></div><a class="btn sm soft" href="#pets">Карточка</a></div>`:"")+
+      (A.length?grp("Просрочено",over,"alert","red")+grp("Сегодня",td,"","")+(td.length||over.length?"":`<div class="banner">${ic("check")}<div>На сегодня дел нет. ЛапаПомощи помнит обо всём остальном.</div></div>`)+grp("На этой неделе",wk)+grp("Позже",later)
+        :`<div class="empty"><span class="ava">${ic("cal")}</span><b>Календарь ухода пока пуст</b><span>Добавьте вакцинацию, обработку, визит к ветеринару или груминг.</span><button class="btn primary" id="addProc">${ic("plus")}Добавить процедуру</button></div>`); },
+  calendar(){ const [y,m]=UI.month.split("-").map(Number); const off=(new Date(y,m-1,1).getDay()+6)%7; const dim=new Date(y,m,0).getDate(); const byDay={}; S.procs.filter(visible).forEach(p=>{ const k=p.done?p.doneAt:p.date; (byDay[k]=byDay[k]||[]).push(p); });
+    let cells="<span></span>".repeat(off); for(let d=1;d<=dim;d++){ const s=`${UI.month}-${pad(d)}`; const L=byDay[s]||[]; cells+=`<button class="cd ${s===UI.cday?"on":""} ${s===today()?"today":""}" data-cday="${s}" aria-label="${dl(s)}, процедур: ${L.length}">${d}<span class="dots">${L.slice(0,3).map(p=>`<i style="background:${p.done?"#9FB3C6":CATS[p.cat].fg}"></i>`).join("")}</span></button>`; }
+    const L=(byDay[UI.cday]||[]); const act=L.filter(p=>!p.done), done=L.filter(p=>p.done);
+    return head("Календарь ухода",dl(UI.cday)+(UI.cday===today()?", сегодня":""))+petStrip()+`<div class="card"><div class="wknav"><button class="btn icon" id="mprev" aria-label="Предыдущий месяц">${ic("left")}</button><b>${MN[m-1]} ${y}</b><button class="btn icon" id="mnext" aria-label="Следующий месяц">${ic("right")}</button></div><div class="calg">${WDS.map(w=>`<small>${w}</small>`).join("")}${cells}</div></div>
+      ${act.length?`<div class="grp">${act.map(taskHTML).join("")}</div>`:""}${done.length?`<div class="sec"><h2>Выполнено в этот день</h2></div><div class="card hist">${done.map(histRow).join("")}</div>`:""}
+      ${!L.length?`<div class="empty"><b>На ${dl(UI.cday)} ничего не запланировано</b><button class="btn soft" id="addOn">${ic("plus")}Добавить процедуру на этот день</button></div>`:""}`; },
+  pets(){ return head("Питомцы",S.pets.length?`${S.pets.length} ${plural(S.pets.length,"питомец","питомца","питомцев")}`:"Ваши питомцы",`<button class="btn primary" id="addPet">${ic("plus")}<span>Добавить</span></button>`)+
+    (S.pets.length?S.pets.map(p=>{ const next=S.procs.filter(q=>q.petId===p.id&&!q.done).sort((a,b)=>a.date.localeCompare(b.date))[0]; const dn=S.procs.filter(q=>q.petId===p.id&&q.done).length;
+      return `<div class="card petcard"><div class="top">${avatar(p,"big")}<div style="flex:1;min-width:0"><h3>${esc(p.name)}</h3><div class="note" style="font-size:14px">${esc(SPECIES[p.species])}${p.breed?" · "+esc(p.breed):""}</div></div><button class="btn sm" data-editpet="${p.id}">${ic("edit")}Изменить</button></div>
+        <div class="specs"><div class="spec"><span>Возраст</span><b>${age(p.birth)||"не указан"}</b></div><div class="spec"><span>Дата рождения</span><b>${p.birth?dl(p.birth)+(D(p.birth).getFullYear()===new Date().getFullYear()?"":""):"—"}</b></div><div class="spec"><span>Вес</span><b>${p.weight?p.weight+" кг":"—"}</b></div><div class="spec"><span>Выполнено процедур</span><b>${dn}</b></div></div>
+        ${p.notes?`<div class="note" style="font-size:14px">${esc(p.notes)}</div>`:""}
+        ${isPro()?`<div class="specs"><div class="spec"><span>Чип</span><b>${esc(p.chip||"—")}</b></div><div class="spec"><span>Ветклиника</span><b>${esc(p.clinic||"—")}</b></div><div class="spec"><span>Корм</span><b>${esc(p.food||"—")}</b></div></div>`:`<div class="lockrow"><span>${ic("lock")} Чип, ветклиника и корм — в расширенной карточке</span><button class="btn sm gold" data-pro="Расширенная карточка питомца: номер чипа, ветклиника, корм и порция.">Premium</button></div>`}
+        <div class="banner" style="margin:0">${ic("cal")}<div>${next?`Ближайшее: <b>${esc(next.title)}</b>, ${dl(next.date)} (${rel(next.date)})`:"Запланированных процедур нет"}</div></div></div>`; }).join("")+
+      (!isPro()?`<div class="lockrow" style="padding:14px"><span>${ic("paw")} В бесплатной версии один питомец. Второго можно добавить в Premium.</span><a class="btn sm gold" href="#premium" style="color:#4A3200">Подробнее</a></div>`:"")
+    :`<div class="empty"><span class="ava">${ic("paw")}</span><b>Питомцев пока нет</b><button class="btn primary" id="addPet2">${ic("plus")}Добавить питомца</button></div>`); },
+  history(){ const lim=isPro()?null:addMonths(today(),-FREE.histMonths); const all=S.procs.filter(p=>p.done&&visible(p)).sort((a,b)=>b.doneAt.localeCompare(a.doneAt)); const shown=all.filter(p=>(!lim||p.doneAt>=lim)&&(UI.hcat==="all"||p.cat===UI.hcat)); const hidden=lim?all.filter(p=>p.doneAt<lim).length:0;
+    const cats=[...new Set(all.map(p=>p.cat))]; const byCat=cats.map(c=>({c,n:all.filter(p=>p.cat===c).length})).sort((a,b)=>b.n-a.n); const mx=Math.max(1,...byCat.map(x=>x.n)); const ontime=all.length?Math.round(all.filter(p=>p.doneAt<=p.date).length/all.length*100):0;
+    const stats=`<div class="kpis"><div class="kpi"><b>${all.length}</b><span>выполнено всего</span></div><div class="kpi"><b>${ontime}%</b><span>вовремя</span></div><div class="kpi"><b>${S.procs.filter(p=>!p.done&&visible(p)).length}</b><span>в планах</span></div></div><div class="hbars">${byCat.map(x=>`<div class="hb"><span>${CATS[x.c].n}</span><div class="t"><i style="width:${x.n/mx*100}%"></i></div><span class="v">${x.n}</span></div>`).join("")||`<div class="note">Пока нет данных</div>`}</div>`;
+    return head("История ухода","Что уже сделано")+petStrip()+
+      `<div class="card ${isPro()?"":"locked"}"><div class="sec" style="margin-top:0"><h2>${ic("chart")}Статистика</h2>${isPro()?"":`<span class="chip gold">${ic("crown")}Premium</span>`}</div>${isPro()?stats:`<div class="bl">${stats}</div><div class="lk"><div>${ic("lock")}<b>Статистика доступна в Premium</b><button class="btn sm gold" data-pro="Статистика ухода: сколько процедур выполнено, какая доля вовремя и что делаете чаще всего.">Открыть за 199 ₽</button></div></div>`}</div>
+      ${cats.length>1?`<div class="seg" style="margin-bottom:12px"><button class="${UI.hcat==="all"?"on":""}" data-hcat="all">Все</button>${cats.map(c=>`<button class="${UI.hcat===c?"on":""}" data-hcat="${c}">${CATS[c].n}</button>`).join("")}</div>`:""}
+      ${shown.length?`<div class="card hist">${shown.map(histRow).join("")}</div>`:`<div class="empty"><span class="ava">${ic("hist")}</span><b>История пока пуста</b><span>Отмечайте процедуры выполненными, и они появятся здесь.</span></div>`}
+      ${hidden?`<div class="lockrow" style="padding:14px"><span>${ic("lock")} Ещё ${hidden} ${plural(hidden,"запись","записи","записей")} старше ${FREE.histMonths} месяцев — в расширенной истории</span><button class="btn sm gold" data-pro="Расширенная история: все процедуры за всё время.">Premium</button></div>`:""}`; },
+  premium(){ const yes=ic("check"), no=`<span class="no">—</span>`;
+    return head("Premium","Больше заботы, меньше хлопот")+`<div class="offer"><span class="chip gold" style="justify-self:start">${ic("crown")}Premium</span>
+      <h2>ЛапаПомощи — ваш личный помощник по уходу за питомцем</h2><p>Все прививки, обработки, ветеринары и важные процедуры — в одном месте. Больше не нужно помнить всё самостоятельно.</p>
+      <div class="pr">199 ₽<small> в месяц</small></div>
+      ${isPro()?`<button class="btn lg" id="cancelPro" style="justify-self:start">Отключить Premium</button>`:`<button class="btn gold lg" id="buyPro" style="justify-self:start">${ic("crown")}Оформить Premium</button>`}
+      <span style="font-size:13px;opacity:.9;font-weight:600">Оплата в прототипе не подключена. Подписка включается в тестовом режиме, деньги не списываются.</span></div>
+    <div class="card"><table class="cmp"><thead><tr><th>Возможность</th><th>Бесплатно</th><th>Premium</th></tr></thead><tbody>
+      ${[["Питомцы","1","Без ограничений"],["Календарь ухода",yes,yes],["Напоминания",`до ${FREE.active} активных`,"Без ограничений"],["История процедур",`${FREE.histMonths} месяца`,"За всё время"],["Категории ухода","6 основных","+5 дополнительных"],["Статистика",no,yes],["Расширенная карточка питомца",no,yes]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table></div>`; },
+  profile(){ const rm=reminders(); return head("Профиль","Настройки")+`<div class="card"><div style="display:flex;gap:14px;align-items:center"><span class="ava big" style="width:60px;height:60px">${ic("user")}</span><div style="min-width:0;flex:1"><b style="font-size:19px;font-weight:900;display:block">${esc(ME.name)}</b><span class="note">${ME.demo?"Демо-режим без регистрации":esc(ME.email)}</span></div><span class="chip ${isPro()?"gold":"gray"}">${isPro()?"Premium":"Бесплатная версия"}</span></div></div>
+    <div class="card"><div class="row"><div><b>Тариф</b><span class="d">${isPro()?"Premium · 199 ₽ в месяц, тестовый режим":`Бесплатно: ${FREE.pets} питомец, до ${FREE.active} активных напоминаний`}</span></div><a class="btn ${isPro()?"":"gold"}" href="#premium" style="${isPro()?"":"color:#4A3200"}">${isPro()?"Управлять":"Premium за 199 ₽"}</a></div>
+      <div class="row"><div><b>Напоминания</b><span class="d">Сейчас активно: ${rm.length}. Показываются в колокольчике и на главной.</span></div><button class="btn" id="bell2">${ic("bell")}Открыть</button></div>
+      <div class="row"><div><b>Уведомления на телефон</b><span class="d">Появятся в мобильной версии. В прототипе напоминания видны внутри приложения.</span></div><span class="chip gray">Скоро</span></div></div>
+    <div class="card"><div class="row"><div><b>Пример данных</b><span class="d">Барсик и его процедуры из сценария</span></div><button class="btn" id="seed">Загрузить пример</button></div>
+      <div class="row"><div><b>Удалить все данные</b><span class="d">Питомцы, процедуры и история</span></div><button class="btn danger" id="wipe">Удалить</button></div>
+      <div class="row"><div><b>Выйти</b><span class="d">Данные останутся в этом браузере</span></div><button class="btn" id="logout">${ic("logout")}Выйти</button></div></div>`; }
+};
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+function histRow(p){ const pt=pet(p.petId); const c=CATS[p.cat]; return `<div class="hrow"><span class="catic" style="background:${c.bg};color:${c.fg}">${ic(c.i)}</span><div style="min-width:0"><b>${esc(p.title)}</b><span>${dl(p.doneAt)}${S.pets.length>1&&pt?" · "+esc(pt.name):""}${p.doneAt>p.date?" · позже срока":""}</span></div><button class="btn sm ghost" data-undo="${p.id}">Вернуть</button></div>`; }
+function openBell(){ const L=reminders(); const m=modal(`<h3><span style="display:flex;gap:8px;align-items:center">${ic("bell")}Напоминания</span><button class="btn icon ghost" data-close aria-label="Закрыть">${ic("x")}</button></h3>
+  ${L.length?`<div class="grp" id="bl">${L.map(taskHTML).join("")}</div>`:`<div class="empty"><b>Сейчас напоминаний нет</b><span>Они появятся заранее: в день процедуры или за 1, 3 или 7 дней.</span></div>`}`); const r=$("#bl",m.el); if(r){ bindLists(r); $$("[data-proc]",r).forEach(b=>{ const f=b.onclick; b.onclick=()=>{ m.close(); f(); }; }); } }
+function bindApp(){ bindLists($(".main")); const fab=$("#fab"); if(fab) fab.onclick=()=>procForm(null,{date:route==="calendar"?UI.cday:today()});
+  ["#bell","#bell2"].forEach(s=>{ const b=$(s); if(b) b.onclick=openBell; }); ["#addPet","#addPet2"].forEach(s=>{ const b=$(s); if(b) b.onclick=()=>petForm(); });
+  const ap=$("#addProc"); if(ap) ap.onclick=()=>procForm(); const ao=$("#addOn"); if(ao) ao.onclick=()=>procForm(null,{date:UI.cday});
+  $$("[data-editpet]").forEach(b=>b.onclick=()=>petForm(pet(b.dataset.editpet)));
+  $$("[data-cday]").forEach(b=>b.onclick=()=>{ UI.cday=b.dataset.cday; render(); }); const mv=n=>{ const [y,m]=UI.month.split("-").map(Number); const d=new Date(y,m-1+n,1); UI.month=`${d.getFullYear()}-${pad(d.getMonth()+1)}`; UI.cday=UI.month===today().slice(0,7)?today():UI.month+"-01"; render(); };
+  const mp=$("#mprev"); if(mp){ mp.onclick=()=>mv(-1); $("#mnext").onclick=()=>mv(1); }
+  $$("[data-hcat]").forEach(b=>b.onclick=()=>{ UI.hcat=b.dataset.hcat; render(); });
+  const bp=$("#buyPro"); if(bp) bp.onclick=()=>{ S.plan="pro"; S.proSince=today(); save(); toast("Premium включён (тестовый режим)"); render(); };
+  const cp=$("#cancelPro"); if(cp) cp.onclick=async()=>{ if(await confirmBox("Отключить Premium?","Питомцы и процедуры сохранятся, но добавить второго питомца и больше 7 напоминаний будет нельзя.","Отключить")){ S.plan="free"; save(); toast("Premium отключён"); render(); } };
+  const sd=$("#seed"); if(sd) sd.onclick=async()=>{ if(!S.pets.length||await confirmBox("Загрузить пример?","Текущие питомцы и процедуры заменятся примером с Барсиком.","Загрузить")){ seedDemo(); toast("Пример загружен"); location.hash="home"; render(); } };
+  const wp=$("#wipe"); if(wp) wp.onclick=async()=>{ if(await confirmBox("Удалить все данные?","Питомцы, процедуры и история удалятся без возможности восстановления.")){ S.pets=[]; S.procs=[]; S.activePet="all"; save(); toast("Данные удалены"); render(); } };
+  const lo=$("#logout"); if(lo) lo.onclick=()=>{ Auth.logout(); ME=null; S=null; UI.auth="start"; location.hash=""; render(); }; }
+
+/* ---------- welcome ---------- */
+function Welcome(){ const a=UI.auth;
+  if(a==="login"||a==="register") return `<div class="welcome"><form class="wcard" id="af" novalidate><div class="brand"><span class="lg">${ic("paw")}</span>ЛапаПомощи</div>
+    <div><h1>${a==="login"?"Вход":"Регистрация"}</h1><p style="margin-top:6px">${a==="login"?"Введите email и пароль.":"Аккаунт хранится в этом браузере."}</p></div>
+    ${a==="register"?`<label class="field"><span>Имя</span><input class="inp" name="name" autocomplete="given-name" placeholder="Марта"><div class="ferr" data-err="name"></div></label>`:""}
+    <label class="field"><span>Email</span><input class="inp" name="email" type="email" autocomplete="email" placeholder="you@mail.ru"><div class="ferr" data-err="email"></div></label>
+    <label class="field"><span>Пароль</span><input class="inp" name="password" type="password" autocomplete="${a==="login"?"current-password":"new-password"}"><div class="ferr" data-err="password"></div></label>
+    <button class="btn primary lg block">${a==="login"?"Войти":"Создать аккаунт"}</button><button type="button" class="btn ghost block" id="aback">Назад</button></form></div>`;
+  return `<div class="welcome"><div class="wcard"><div class="brand"><span class="lg">${ic("paw")}</span>ЛапаПомощи</div>
+    <div><h1>Помнит за вас то, что важно для вашего питомца</h1><p style="margin-top:8px">Прививки, обработки, ветеринар и груминг в одном календаре с напоминаниями.</p></div>
+    <div class="wl">${[["vac","syringe","Вакцинации и обработки по графику"],["vet","steth","Визиты к ветеринару и груминг"],["reg","bell","Напоминания заранее"],["par","hist","История ухода в одном месте"]].map(([c,i,t])=>`<div><span class="ic" style="background:var(--${c});color:var(--${c}D)">${ic(i)}</span>${t}</div>`).join("")}</div>
+    <button class="btn primary lg block" id="wDemo">Посмотреть на примере</button>
+    <div class="g2"><button class="btn" id="wReg">Регистрация</button><button class="btn" id="wLog">Войти</button></div></div></div>`; }
+function bindWelcome(){ const a=UI.auth;
+  if(a==="start"){ $("#wDemo").onclick=()=>{ const r=Auth.demo(); ME=r.user; load(); if(r.fresh||!S.pets.length) seedDemo(); location.hash="home"; render(); toast("Открыт пример: Барсик и его календарь"); }; $("#wReg").onclick=()=>{ UI.auth="register"; render(); }; $("#wLog").onclick=()=>{ UI.auth="login"; render(); }; return; }
+  $("#aback").onclick=()=>{ UI.auth="start"; render(); }; $("#af").onsubmit=async e=>{ e.preventDefault(); const r=await Auth[a](fdata(e.target)); if(r.errors){ errs(e.target,r.errors); return; } ME=r.user; load(); UI.auth="start"; location.hash="home"; render(); toast(a==="login"?"С возвращением, "+ME.name:"Аккаунт создан"); }; setTimeout(()=>{ const f=$("#af input"); f&&f.focus(); },40); }
+
+/* ---------- router ---------- */
+window.addEventListener("hashchange",()=>render());
+function render(){ $("#layers").innerHTML=""; ME=ME||Auth.me(); if(ME&&!S) load(); const app=$("#app");
+  if(!ME){ app.innerHTML=Welcome(); bindWelcome(); return; }
+  let r=(location.hash||"#home").slice(1); if(!Screens[r]) r="home"; route=r; if(S.activePet!=="all"&&!pet(S.activePet)) S.activePet="all";
+  app.innerHTML=shell(Screens[r](),["home","calendar"].includes(r)&&S.pets.length>0); bindApp(); }
+render();
+})();
+</script>
+
+</body>
+</html>
